@@ -1,112 +1,124 @@
 import React, { useState, useMemo } from 'react';
 import { GraduationCap, Trash2 } from 'lucide-react';
-import { Stage } from './types/Stage';
-import { mockStages } from './data/mockData';
-import StageCard from './components/StageCard';
-import StageForm from './components/StageForm';
+import { Entreprise } from './types/Entreprise';
+import { mockEntreprises } from './data/mockData';
+import EntrepriseCard from './components/EntrepriseCard';
+import EntrepriseForm from './components/EntrepriseForm';
 import SearchAndFilters from './components/SearchAndFilters';
-import StageStats from './components/StageStats';
-
+import EntrepriseStats from './components/EntrepriseStats';
 function App() {
-  const [stages, setStages] = useState<Stage[]>(mockStages);
-  const [selectedStage, setSelectedStage] = useState<Stage | undefined>();
+  const [Entreprises, setEntreprises] = useState<Entreprise[]>(mockEntreprises);
+  const [selectedEntreprise, setSelectedEntreprise] = useState<Entreprise | undefined>();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<'create' | 'edit' | 'view'>('create');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
-  const [sortBy, setSortBy] = useState('dateDebut');
+  const [posteFilter, setPosteFilter] = useState('');
+  const [sortBy, setSortBy] = useState('dateCandidature');
+  
 
-  // Filtrage et tri des stages
-  const filteredAndSortedStages = useMemo(() => {
-    let filtered = stages.filter(stage => {
-      const matchesSearch = searchTerm === '' || 
-        stage.etudiant.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        stage.etudiant.prenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        stage.entreprise.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        stage.stage.poste.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesStatus = statusFilter === '' || stage.stage.statut === statusFilter;
-      const matchesType = typeFilter === '' || stage.stage.type === typeFilter;
-      
-      return matchesSearch && matchesStatus && matchesType;
+  // Filtrage et tri des Entreprises
+  const filteredAndSortedEntreprises = useMemo(() => {
+    const filtered = Entreprises.filter(({ entreprise, Poste }) => {
+      const search = searchTerm.toLowerCase();
+
+      const matchesSearch = searchTerm === '' || [
+        entreprise.nom,
+        entreprise.secteur,
+        entreprise.typeEntreprise,
+      ].some(val => val?.toLowerCase().includes(search));
+
+      const matchesStatus = statusFilter === '' || Poste.statut === statusFilter;
+      const matchesType = typeFilter === '' || Poste.typePoste === typeFilter;
+      const matchesPoste = posteFilter === '' || Poste.poste.toLowerCase().includes(posteFilter.toLowerCase());
+
+      return matchesSearch && matchesStatus && matchesType && matchesPoste;
     });
 
     // Tri
     filtered.sort((a, b) => {
       switch (sortBy) {
-        case 'dateDebut':
-          return new Date(a.stage.dateDebut).getTime() - new Date(b.stage.dateDebut).getTime();
-        case 'dateFin':
-          return new Date(a.stage.dateFin).getTime() - new Date(b.stage.dateFin).getTime();
-        case 'etudiant':
-          return a.etudiant.nom.localeCompare(b.etudiant.nom);
-        case 'entreprise':
-          return a.entreprise.nom.localeCompare(b.entreprise.nom);
+        case 'dateCandidature':
+          return new Date(b.Poste.dateCandidature).getTime() - new Date(a.Poste.dateCandidature).getTime();
+        case 'poste':
+          return a.Poste.poste.toLowerCase().localeCompare(b.Poste.poste.toLowerCase());
+        case 'typePoste':
+          return a.Poste.typePoste.toLowerCase().localeCompare(b.Poste.typePoste.toLowerCase());
+        case 'typeEntreprise':
+          return a.entreprise.typeEntreprise.toLowerCase().localeCompare(b.entreprise.typeEntreprise.toLowerCase());
         case 'statut':
-          return a.stage.statut.localeCompare(b.stage.statut);
+          return a.Poste.statut.toLowerCase().localeCompare(b.Poste.statut.toLowerCase());
         default:
           return 0;
       }
     });
 
     return filtered;
-  }, [stages, searchTerm, statusFilter, typeFilter, sortBy]);
+  }, [Entreprises, searchTerm, statusFilter, typeFilter, posteFilter, sortBy]);
 
-  const handleView = (stage: Stage) => {
-    setSelectedStage(stage);
+  const handleView = (Entreprise: Entreprise) => {
+    setSelectedEntreprise(Entreprise);
     setFormMode('view');
     setIsFormOpen(true);
   };
 
-  const handleEdit = (stage: Stage) => {
-    setSelectedStage(stage);
+  const handleEdit = (Entreprise: Entreprise) => {
+    setSelectedEntreprise(Entreprise);
     setFormMode('edit');
     setIsFormOpen(true);
   };
 
   const handleDelete = (id: string) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce stage ?')) {
-      setStages(stages.filter(stage => stage.id !== id));
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette candidature ?')) {
+      setEntreprises(Entreprises.filter(Entreprise => Entreprise.id !== id));
     }
   };
 
   const handleAddNew = () => {
-    setSelectedStage(undefined);
+    setSelectedEntreprise(undefined);
     setFormMode('create');
     setIsFormOpen(true);
   };
 
-  const handleSave = (stageData: Partial<Stage>) => {
+  const handleSave = (EntrepriseData: Partial<Entreprise>) => {
     if (formMode === 'create') {
-      const newStage: Stage = {
-        ...stageData as Stage,
+      const newEntreprise: Entreprise = {
+        ...EntrepriseData as Entreprise,
         id: Date.now().toString(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
-      setStages([...stages, newStage]);
-    } else if (formMode === 'edit' && selectedStage) {
-      setStages(stages.map(stage => 
-        stage.id === selectedStage.id 
-          ? { ...stageData as Stage, id: selectedStage.id, updatedAt: new Date().toISOString() }
-          : stage
+      setEntreprises([...Entreprises, newEntreprise]);
+    } else if (formMode === 'edit' && selectedEntreprise) {
+      setEntreprises(Entreprises.map(Entreprise => 
+        Entreprise.id === selectedEntreprise.id 
+          ? { ...EntrepriseData as Entreprise, id: selectedEntreprise.id, updatedAt: new Date().toISOString() }
+          : Entreprise
       ));
     }
     setIsFormOpen(false);
-    setSelectedStage(undefined);
+    setSelectedEntreprise(undefined);
   };
 
   const handleCloseForm = () => {
     setIsFormOpen(false);
-    setSelectedStage(undefined);
+    setSelectedEntreprise(undefined);
   };
 
   const handleBulkDelete = () => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer tous les stages filtrés ?')) {
-      const idsToDelete = new Set(filteredAndSortedStages.map(stage => stage.id));
-      setStages(stages.filter(stage => !idsToDelete.has(stage.id)));
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer toutes les candidatures filtrées ?')) {
+      const idsToDelete = new Set(filteredAndSortedEntreprises.map(Entreprise => Entreprise.id));
+      setEntreprises(Entreprises.filter(Entreprise => !idsToDelete.has(Entreprise.id)));
     }
+  };
+
+  const handleResetFilters = () => {
+    setSearchTerm('');
+    setStatusFilter('');
+    setTypeFilter('');
+    setSortBy('dateCandidature');
+    setPosteFilter('');
   };
 
   return (
@@ -117,17 +129,17 @@ function App() {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
               <GraduationCap className="w-8 h-8 text-blue-600 mr-3" />
-              <h1 className="text-2xl font-bold text-gray-900">Suivi des Stages</h1>
+              <h1 className="text-2xl font-bold text-gray-900">JobPilot.Dev</h1>
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-500">
-                {filteredAndSortedStages.length} stage{filteredAndSortedStages.length > 1 ? 's' : ''}
+                {filteredAndSortedEntreprises.length} Candidature{filteredAndSortedEntreprises.length > 1 ? 's' : ''}
               </span>
-              {filteredAndSortedStages.length > 0 && (
+              {filteredAndSortedEntreprises.length > 0 && (
                 <button
-                  onClick={handleBulkDelete}
+                  //onClick={handleBulkDelete}
                   className="flex items-center px-3 py-1 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
-                  title="Supprimer tous les stages filtrés"
+                  title="Supprimer toutes les Candidatures filtrés"
                 >
                   <Trash2 className="w-4 h-4 mr-1" />
                   Supprimer tout
@@ -141,7 +153,7 @@ function App() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats */}
-        <StageStats stages={stages} />
+        <EntrepriseStats Entreprises={Entreprises} />
 
         {/* Search and Filters */}
         <SearchAndFilters
@@ -154,37 +166,40 @@ function App() {
           sortBy={sortBy}
           onSortChange={setSortBy}
           onAddNew={handleAddNew}
+          onReset={handleResetFilters}
+          posteFilter={posteFilter}
+          onPosteFilterChange={setPosteFilter}
         />
 
-        {/* Stages Grid */}
-        {filteredAndSortedStages.length === 0 ? (
+        {/* Entreprises Grid */}
+        {filteredAndSortedEntreprises.length === 0 ? (
           <div className="text-center py-12">
             <GraduationCap className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {stages.length === 0 ? 'Aucun stage enregistré' : 'Aucun stage trouvé'}
+              {Entreprises.length === 0 ? 'Aucune Candidature enregistré' : 'Aucune Candidature trouvé'}
             </h3>
             <p className="text-gray-500 mb-4">
-              {stages.length === 0 
-                ? 'Commencez par ajouter votre premier stage'
+              {Entreprises.length === 0 
+                ? 'Commencez par ajouter votre première candidature'
                 : 'Essayez de modifier vos critères de recherche'
               }
             </p>
-            {stages.length === 0 && (
+            {Entreprises.length === 0 && (
               <button
                 onClick={handleAddNew}
                 className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
               >
                 <GraduationCap className="w-4 h-4 mr-2" />
-                Ajouter un stage
+                Ajouter une candidature
               </button>
             )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredAndSortedStages.map(stage => (
-              <StageCard
-                key={stage.id}
-                stage={stage}
+            {filteredAndSortedEntreprises.map(Entreprise => (
+              <EntrepriseCard
+                key={Entreprise.id}
+                Entreprise={Entreprise}
                 onView={handleView}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
@@ -194,11 +209,11 @@ function App() {
         )}
       </main>
 
-      {/* Stage Form */}
-      <StageForm
+      {/* Entreprise Form */}
+      <EntrepriseForm
         isOpen={isFormOpen}
         onClose={handleCloseForm}
-        stage={selectedStage}
+        Entreprise={selectedEntreprise}
         onSave={handleSave}
         mode={formMode}
       />
