@@ -35,7 +35,7 @@ const EntrepriseForm: React.FC<EntrepriseFormProps> = ({
     Poste: {
       poste: "",
       description: "",
-      statut: "Non Postulé",
+      statut: "En Attente",
       typePoste: 'Autre',
       dateCandidature: "",
     },
@@ -58,7 +58,7 @@ const EntrepriseForm: React.FC<EntrepriseFormProps> = ({
         Poste: {
           poste: "",
           description: "",
-          statut: "Non Postulé",
+          statut: "En Attente",
           typePoste: 'Autre',
           dateCandidature: "",
         },
@@ -258,8 +258,7 @@ const EntrepriseForm: React.FC<EntrepriseFormProps> = ({
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   disabled={isReadOnly}
                 >
-                  <option value="Non Postulé">Non Postulé</option>
-                  <option value="Postulé">Postulé</option>
+                  <option value="En Attente">En Attente</option>
                   <option value="Entretien">Entretien</option>
                   <option value="Accepté">Accepté</option>
                   <option value="Refusé">Refusé</option>

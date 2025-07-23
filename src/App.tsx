@@ -129,22 +129,7 @@ function App() {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
               <GraduationCap className="w-8 h-8 text-blue-600 mr-3" />
-              <h1 className="text-2xl font-bold text-gray-900">JobPilot.Dev</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-500">
-                {filteredAndSortedEntreprises.length} Candidature{filteredAndSortedEntreprises.length > 1 ? 's' : ''}
-              </span>
-              {filteredAndSortedEntreprises.length > 0 && (
-                <button
-                  //onClick={handleBulkDelete}
-                  className="flex items-center px-3 py-1 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
-                  title="Supprimer toutes les Candidatures filtrés"
-                >
-                  <Trash2 className="w-4 h-4 mr-1" />
-                  Supprimer tout
-                </button>
-              )}
+              <h1 className="text-2xl font-bold text-gray-900">JobPilot</h1>
             </div>
           </div>
         </div>

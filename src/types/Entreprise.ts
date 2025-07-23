@@ -10,7 +10,7 @@ export interface Entreprise {
   };
   Poste: {
     poste: string;
-    statut: 'Non Postulé' | 'Postulé' | 'Entretien' | 'Accepté' | 'Refusé';
+    statut: 'En Attente' | 'Entretien' | 'Accepté' | 'Refusé';
     typePoste: 'Stage' | 'Alternance' | 'Emploi' | 'Autre' ;
     description: string;
     dateCandidature: string;
@@ -19,3 +19,35 @@ export interface Entreprise {
   createdAt: string;
   updatedAt: string;
 }
+
+export const ENTREPRISE_TYPES = [
+  'PME',
+  'Grande entreprise',
+  'Start-up',
+  'Association',
+  'Administration',
+  'Autre',
+] as const;
+
+export const ENTREPRISE_SECTEURS = [
+  'Cybersécurité & Cloud',
+  'Fintech',
+  'IA & Data',
+  'Développement logiciel',
+  'Robotique & IOT',
+  'Développement Web',
+  'Autre',
+] as const;
+
+export const POSTE_STATUTS = [
+  'En Attente',
+  'Entretien',
+  'Accepté', 
+  'Refusé',
+] as const;
+
+export const POSTE_TYPES = [
+  'Stage',
+  'Alternance',
+  'Emploi' 
+] as const;

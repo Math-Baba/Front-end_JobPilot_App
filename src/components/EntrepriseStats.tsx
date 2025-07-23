@@ -9,7 +9,7 @@ interface EntrepriseStatsProps {
 const EntrepriseStats: React.FC<EntrepriseStatsProps> = ({ Entreprises }) => {
   const stats = {
     total: Entreprises.length,
-    enCours: Entreprises.filter(s => s.Poste.statut === 'Postulé').length,
+    enCours: Entreprises.filter(s => s.Poste.statut === 'En Attente').length,
     entretien: Entreprises.filter(s => s.Poste.statut === 'Entretien').length,
     accepte: Entreprises.filter(s => s.Poste.statut === 'Accepté').length,
     entreprises: new Set(Entreprises.map(s => s.entreprise.nom)).size
@@ -32,7 +32,7 @@ const EntrepriseStats: React.FC<EntrepriseStatsProps> = ({ Entreprises }) => {
       <div className="bg-[#a8dadc] rounded-lg shadow-md border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-600">Postulés</p>
+            <p className="text-sm font-medium text-gray-600">En Attente</p>
             <p className="text-2xl font-bold text-blue-600">{stats.enCours}</p>
           </div>
           <div className="p-3 bg-blue-100 rounded-full">

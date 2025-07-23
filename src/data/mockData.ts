@@ -35,7 +35,7 @@ export const mockEntreprises: Entreprise[] = [
     Poste: {
       poste: 'Data Analyst',
       description: 'Analyse de données et création de tableaux de bord',
-      statut: 'Postulé',
+      statut: 'En Attente',
       typePoste: 'Emploi',
       dateCandidature: '2025-02-19',
     },
@@ -77,7 +77,7 @@ export const mockEntreprises: Entreprise[] = [
     Poste: {
       poste: 'Développeur Full Stack',
       description: 'Développement d\'applications web et mobile',
-      statut: 'Postulé',
+      statut: 'En Attente',
       typePoste: 'Alternance',
       dateCandidature: '2024-12-21',
     },
