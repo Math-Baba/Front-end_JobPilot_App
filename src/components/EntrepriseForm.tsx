@@ -1,71 +1,65 @@
 import React, { useState, useEffect } from "react";
-import {
-  X,
-  Save,
-  Building,
-  Calendar,
-  FileText,
-} from "lucide-react";
-import { Entreprise } from "../types/Entreprise";
+import { X, Save, Building, Calendar, FileText } from "lucide-react";
+import { JobApplicationRequest } from "../types/Entreprise";
 
 interface EntrepriseFormProps {
   isOpen: boolean;
   onClose: () => void;
-  Entreprise?: Entreprise;
-  onSave: (Entreprise: Partial<Entreprise>) => void;
+  request?: JobApplicationRequest;
+  onSave: (request: Partial<JobApplicationRequest>) => void;
   mode: "create" | "edit" | "view";
 }
 
 const EntrepriseForm: React.FC<EntrepriseFormProps> = ({
   isOpen,
   onClose,
-  Entreprise,
+  request,
   onSave,
   mode,
 }) => {
-  const [formData, setFormData] = useState<Partial<Entreprise>>({
-    entreprise: {
-      nom: "",
-      secteur: 'Autre',
-      adresse: "",
+  const [formData, setFormData] = useState<Partial<JobApplicationRequest>>({
+    jobCompanyInfo: {
+      name: "",
+      sector: "",
+      adress: "",
       email: "",
-      contact: 0,
-      typeEntreprise: 'Autre',
+      phone: 0,
+      companyType: "",
     },
-    Poste: {
-      poste: "",
+    jobPositionInfo: {
+      jobTitle: "",
       description: "",
-      statut: "En Attente",
-      typePoste: 'Autre',
-      dateCandidature: "",
+      status: "ATTENTE",
+      positionType: "",
+      applicationDate: "",
     },
     notes: "",
   });
 
   useEffect(() => {
-    if (Entreprise) {
-      setFormData(Entreprise);
+    if (request) {
+      setFormData(request);
     } else {
       setFormData({
-        entreprise: {
-          nom: "",
-          secteur: 'Autre',
-          adresse: "",
+        jobCompanyInfo: {
+          name: "",
+          sector: "",
+          adress: "",
           email: "",
-          contact: 0,
-          typeEntreprise: 'Autre',
+          phone: 0,
+          companyType: "",
         },
-        Poste: {
-          poste: "",
+        jobPositionInfo: {
+          jobTitle: "",
           description: "",
-          statut: "En Attente",
-          typePoste: 'Autre',
-          dateCandidature: "",
+          status: "ATTENTE",
+          positionType: "STAGE",
+          applicationDate: "",
         },
         notes: "",
       });
     }
-  }, [Entreprise]);
+  }, [request]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,13 +113,13 @@ const EntrepriseForm: React.FC<EntrepriseFormProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nom de l'entreprise
+                  Nom de l'entreprise <span className="text-red">*</span>
                 </label>
                 <input
                   type="text"
-                  value={formData.entreprise?.nom || ""}
+                  value={formData.jobCompanyInfo?.name}
                   onChange={(e) =>
-                    updateNestedField(["entreprise", "nom"], e.target.value)
+                    updateNestedField(["jobCompanyInfo", "name"], e.target.value)
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
@@ -134,38 +128,39 @@ const EntrepriseForm: React.FC<EntrepriseFormProps> = ({
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Secteur
+                  Secteur <span className="text-red">*</span>
                 </label>
                 <select
-                  value={formData.entreprise?.secteur || ""}
+                  value={formData.jobCompanyInfo?.sector}
+                  required
                   onChange={(e) =>
-                    updateNestedField(["entreprise", "secteur"], e.target.value)
+                    updateNestedField(["jobCompanyInfo", "sector"], e.target.value)
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   disabled={isReadOnly}
                 >
                   <option value="">-- Choisir un secteur --</option>
-                  <option value="Développement logiciel">
+                  <option value="DEVELOPPEMENT_LOGICIEL">
                     Développement logiciel
                   </option>
-                  <option value="Robotique & IOT">Robotique & IOT</option>
-                  <option value="IA & Data">IA & Data</option>
-                  <option value="Développement Web">Développement Web</option>
-                  <option value="Fintech">Fintech</option>
-                  <option value="Cybersécurité & Cloud">
+                  <option value="ROBOTIQUE_IOT">Robotique & IOT</option>
+                  <option value="AI_DATA">IA & Data</option>
+                  <option value="DEVELOPPEMENT_WEB">Développement Web</option>
+                  <option value="FINTECH">Fintech</option>
+                  <option value="CYBERSECURITE_CLOUD">
                     Cybersécurité & Cloud
                   </option>
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Adresse
+                  Adresse 
                 </label>
                 <input
                   type="text"
-                  value={formData.entreprise?.adresse || ""}
+                  value={formData.jobCompanyInfo?.adress || ""}
                   onChange={(e) =>
-                    updateNestedField(["entreprise", "adresse"], e.target.value)
+                    updateNestedField(["jobCompanyInfo", "adress"], e.target.value)
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   disabled={isReadOnly}
@@ -173,13 +168,13 @@ const EntrepriseForm: React.FC<EntrepriseFormProps> = ({
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
+                  Email <span className="text-red">*</span>
                 </label>
                 <input
                   type="email"
-                  value={formData.entreprise?.email || ""}
+                  value={formData.jobCompanyInfo?.email}
                   onChange={(e) =>
-                    updateNestedField(["entreprise", "email"], e.target.value)
+                    updateNestedField(["jobCompanyInfo", "email"], e.target.value)
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
@@ -188,37 +183,40 @@ const EntrepriseForm: React.FC<EntrepriseFormProps> = ({
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Contact
+                  Numéro de téléphone 
                 </label>
                 <input
                   type="tel"
-                  value={formData.entreprise?.contact || ""}
+                  value={formData.jobCompanyInfo?.phone || ""}
                   onChange={(e) =>
-                    updateNestedField(["entreprise", "contact"], e.target.value)
+                    updateNestedField(["jobCompanyInfo", "phone"], e.target.value)
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
                   disabled={isReadOnly}
                 />
               </div>
-                            <div>
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Type d'entreprise
+                  Type d'entreprise <span className="text-red">*</span>
                 </label>
                 <select
-                  value={formData.entreprise?.typeEntreprise || ""}
+                  value={formData.jobCompanyInfo?.companyType}
                   onChange={(e) =>
-                    updateNestedField(["entreprise", "typeEntreprise"], e.target.value)
+                    updateNestedField(
+                      ["jobCompanyInfo", "companyType"],
+                      e.target.value
+                    )
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   disabled={isReadOnly}
+                  required
                 >
                   <option value="">-- Choisir un type --</option>
-                  <option value="Administration">Administration</option>
-                  <option value="Association">Association</option>
-                  <option value="Grande entreprise">Grande entreprise</option>
+                  <option value="ADMINISTRATION">Administration</option>
+                  <option value="ASSOCIATION">Association</option>
+                  <option value="GRANDE_ENTREPRISE">Grande entreprise</option>
                   <option value="PME">PME</option>
-                  <option value="Start-up">Start-up</option>
+                  <option value="STARTUP">Start-up</option>
                 </select>
               </div>
             </div>
@@ -233,13 +231,13 @@ const EntrepriseForm: React.FC<EntrepriseFormProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Poste
+                  Poste <span className="text-red">*</span>
                 </label>
                 <input
                   type="text"
-                  value={formData.Poste?.poste || ""}
+                  value={formData.jobPositionInfo?.jobTitle}
                   onChange={(e) =>
-                    updateNestedField(["Poste", "poste"], e.target.value)
+                    updateNestedField(["jobPositionInfo", "jobTitle"], e.target.value)
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
@@ -248,49 +246,51 @@ const EntrepriseForm: React.FC<EntrepriseFormProps> = ({
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Statut
+                  Statut <span className="text-red">*</span>
                 </label>
                 <select
-                  value={formData.Poste?.statut || "À venir"}
+                  value={formData.jobPositionInfo?.status}
                   onChange={(e) =>
-                    updateNestedField(["Poste", "statut"], e.target.value)
+                    updateNestedField(["jobPositionInfo", "status"], e.target.value)
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   disabled={isReadOnly}
+                  required
                 >
-                  <option value="En Attente">En Attente</option>
-                  <option value="Entretien">Entretien</option>
-                  <option value="Accepté">Accepté</option>
-                  <option value="Refusé">Refusé</option>
+                  <option value="ATTENTE">En Attente</option>
+                  <option value="ENTRETIEN">Entretien</option>
+                  <option value="ACCEPTE">Accepté</option>
+                  <option value="REFUSE">Refusé</option>
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Type de Poste
+                  Type de Poste <span className="text-red">*</span>
                 </label>
                 <select
-                  value={formData.Poste?.typePoste || "Entreprise"}
+                  value={formData.jobPositionInfo?.positionType || "Entreprise"}
                   onChange={(e) =>
-                    updateNestedField(["Poste", "typePoste"], e.target.value)
+                    updateNestedField(["jobPositionInfo", "positionType"], e.target.value)
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   disabled={isReadOnly}
+                  required
                 >
-                  <option value="Stage">Stage</option>
-                  <option value="Alternance">Alternance</option>
-                  <option value="Emploi">Emploi</option>
+                  <option value="STAGE">Stage</option>
+                  <option value="ALTERNANCE">Alternance</option>
+                  <option value="EMPLOI">Emploi</option>
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date d'envoie de la candidature
+                  Date d'envoie de la candidature <span className="text-red">*</span>
                 </label>
                 <input
                   type="date"
-                  value={formData.Poste?.dateCandidature || ""}
+                  value={formData.jobPositionInfo?.applicationDate || ""}
                   onChange={(e) =>
                     updateNestedField(
-                      ["Poste", "dateCandidature"],
+                      ["jobPositionInfo", "applicationDate"],
                       e.target.value
                     )
                   }
@@ -301,15 +301,12 @@ const EntrepriseForm: React.FC<EntrepriseFormProps> = ({
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
+                  Description 
                 </label>
                 <textarea
-                  value={formData.Poste?.description || ""}
+                  value={formData.jobPositionInfo?.description || ""}
                   onChange={(e) =>
-                    updateNestedField(
-                      ["Poste", "description"],
-                      e.target.value
-                    )
+                    updateNestedField(["jobPositionInfo", "description"], e.target.value)
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   rows={3}

@@ -9,17 +9,18 @@ import {
   MapPin,
   Factory,
 } from "lucide-react";
-import { Entreprise } from "../types/Entreprise";
+import { JobApplicationResponse } from "../types/Entreprise";
+import { statusLabels, sectorLabels, companyTypeLabels, positionTypeLabels } from "../types/Labels";
 
 interface EntrepriseCardProps {
-  Entreprise: Entreprise;
-  onView: (Entreprise: Entreprise) => void;
-  onEdit: (Entreprise: Entreprise) => void;
+  jobApplication: JobApplicationResponse;
+  onView: () => void;
+  onEdit: () => void;
   onDelete: (id: string) => void;
 }
 
 const EntrepriseCard: React.FC<EntrepriseCardProps> = ({
-  Entreprise,
+  jobApplication,
   onView,
   onEdit,
   onDelete,
@@ -32,7 +33,7 @@ const EntrepriseCard: React.FC<EntrepriseCardProps> = ({
         return "bg-green-100 text-green-800";
       case "Refusé":
         return "bg-red-100 text-red-800";
-      case "En Attente":
+      case "Attente":
         return "bg-yellow-100 text-yellow-800";
       default:
         return "bg-gray-100 text-gray-800";
@@ -54,80 +55,52 @@ const EntrepriseCard: React.FC<EntrepriseCardProps> = ({
 
   return (
     <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow duration-200">
-      {/* Ligne du haut : titre à gauche, badges à droite */}
       <div className="flex justify-between items-start mb-2">
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-1">
-            {Entreprise.entreprise.nom}
+            {jobApplication.companyName}
           </h3>
-          <p className="text-gray-600 font-medium">{Entreprise.Poste.poste}</p>
+          <p className="text-gray-600 font-medium">{jobApplication.jobTitle}</p>
         </div>
         <div className="flex flex-row space-x-2">
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-              Entreprise.Poste.statut
-            )}`}
-          >
-            {Entreprise.Poste.statut}
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(statusLabels[jobApplication.status])}`}>
+            {statusLabels[jobApplication.status]}
           </span>
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(
-              Entreprise.Poste.typePoste
-            )}`}
-          >
-            {Entreprise.Poste.typePoste}
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(positionTypeLabels[jobApplication.positionType])}`}>
+            {positionTypeLabels[jobApplication.positionType]}
           </span>
         </div>
       </div>
-      {/* Infos entreprise */}
       <div className="space-y-2 mb-4">
         <div className="flex items-center text-sm text-gray-600">
           <Building className="w-4 h-4 mr-2" />
-          <span>{Entreprise.entreprise.secteur}</span>
+          <span>{sectorLabels[jobApplication.sector]}</span>
         </div>
         <div className="flex items-center text-sm text-gray-600">
           <MapPin className="w-4 h-4 mr-2" />
-          <span>{Entreprise.entreprise.adresse}</span>
+          <span>{jobApplication.companyAdress}</span>
         </div>
         <div className="flex items-center text-sm text-gray-600">
           <Calendar className="w-4 h-4 mr-2" />
-          <span>
-            {new Date(Entreprise.Poste.dateCandidature).toLocaleDateString(
-              "fr-FR"
-            )}
-          </span>
+          <span>{new Date(jobApplication.applicationDate).toLocaleDateString("fr-FR")}</span>
         </div>
         <div className="flex items-center text-sm text-gray-600">
           <Factory className="w-4 h-4 mr-2" />
-          <span>{Entreprise.entreprise.typeEntreprise}</span>
+          <span>{companyTypeLabels[jobApplication.companyType]}</span>
         </div>
       </div>
-      {/* Boutons Rappel à gauche et Actions à droite */}
       <div className="flex justify-between items-center mt-4">
         <button className="px-3 py-1 bg-[#000814] text-white text-sm rounded-lg hover:bg-[#1b263b]">
           Rappel
         </button>
-
         <div className="flex space-x-2">
-          <button
-            onClick={() => onView(Entreprise)}
-            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
-            title="Voir les détails"
-          >
+          <button onClick={onView} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200" title="Voir les détails">
             <Eye className="w-4 h-4" />
           </button>
-          <button
-            onClick={() => onEdit(Entreprise)}
-            className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
-            title="Modifier"
-          >
+          <button onClick={onEdit} className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200" title="Modifier">
             <Edit className="w-4 h-4" />
           </button>
-          <button
-            onClick={() => onDelete(Entreprise.id)}
-            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
-            title="Supprimer"
-          >
+          <button onClick={() => onDelete(jobApplication.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200" title="Supprimer">
             <Trash2 className="w-4 h-4" />
           </button>
         </div>

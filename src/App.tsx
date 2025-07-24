@@ -1,129 +1,68 @@
-import React, { useState, useMemo } from 'react';
-import { GraduationCap, Trash2 } from 'lucide-react';
-import { Entreprise } from './types/Entreprise';
-import { mockEntreprises } from './data/mockData';
-import EntrepriseCard from './components/EntrepriseCard';
-import EntrepriseForm from './components/EntrepriseForm';
-import SearchAndFilters from './components/SearchAndFilters';
-import EntrepriseStats from './components/EntrepriseStats';
+import { GraduationCap, Trash2 } from "lucide-react";
+import EntrepriseCard from "./components/EntrepriseCard";
+import EntrepriseForm from "./components/EntrepriseForm";
+import SearchAndFilters from "./components/SearchAndFilters";
+import EntrepriseStats from "./components/EntrepriseStats";
+import { useAppLogic } from "./App.component";
+import { getJobApplicationById } from "./service/jobApplication.service";
+
 function App() {
-  const [Entreprises, setEntreprises] = useState<Entreprise[]>(mockEntreprises);
-  const [selectedEntreprise, setSelectedEntreprise] = useState<Entreprise | undefined>();
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [formMode, setFormMode] = useState<'create' | 'edit' | 'view'>('create');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [typeFilter, setTypeFilter] = useState('');
-  const [posteFilter, setPosteFilter] = useState('');
-  const [sortBy, setSortBy] = useState('dateCandidature');
-  
+  const {
+    Entreprises,
+    selectedEntreprise,
+    setSelectedEntreprise,
+    isFormOpen,
+    setIsFormOpen,
+    formMode,
+    setFormMode,
+    searchTerm,
+    setSearchTerm,
+    statusFilter,
+    setStatusFilter,
+    typeFilter,
+    setTypeFilter,
+    posteFilter,
+    setPosteFilter,
+    sortBy,
+    setSortBy,
+    loading,
+    error,
+    filteredAndSortedEntreprises,
+    handleDelete,
+    handleAddNew,
+    handleSave,
+    handleCloseForm,
+    handleResetFilters,
+  } = useAppLogic();
 
-  // Filtrage et tri des Entreprises
-  const filteredAndSortedEntreprises = useMemo(() => {
-    const filtered = Entreprises.filter(({ entreprise, Poste }) => {
-      const search = searchTerm.toLowerCase();
-
-      const matchesSearch = searchTerm === '' || [
-        entreprise.nom,
-        entreprise.secteur,
-        entreprise.typeEntreprise,
-      ].some(val => val?.toLowerCase().includes(search));
-
-      const matchesStatus = statusFilter === '' || Poste.statut === statusFilter;
-      const matchesType = typeFilter === '' || Poste.typePoste === typeFilter;
-      const matchesPoste = posteFilter === '' || Poste.poste.toLowerCase().includes(posteFilter.toLowerCase());
-
-      return matchesSearch && matchesStatus && matchesType && matchesPoste;
-    });
-
-    // Tri
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'dateCandidature':
-          return new Date(b.Poste.dateCandidature).getTime() - new Date(a.Poste.dateCandidature).getTime();
-        case 'poste':
-          return a.Poste.poste.toLowerCase().localeCompare(b.Poste.poste.toLowerCase());
-        case 'typePoste':
-          return a.Poste.typePoste.toLowerCase().localeCompare(b.Poste.typePoste.toLowerCase());
-        case 'typeEntreprise':
-          return a.entreprise.typeEntreprise.toLowerCase().localeCompare(b.entreprise.typeEntreprise.toLowerCase());
-        case 'statut':
-          return a.Poste.statut.toLowerCase().localeCompare(b.Poste.statut.toLowerCase());
-        default:
-          return 0;
-      }
-    });
-
-    return filtered;
-  }, [Entreprises, searchTerm, statusFilter, typeFilter, posteFilter, sortBy]);
-
-  const handleView = (Entreprise: Entreprise) => {
-    setSelectedEntreprise(Entreprise);
-    setFormMode('view');
-    setIsFormOpen(true);
-  };
-
-  const handleEdit = (Entreprise: Entreprise) => {
-    setSelectedEntreprise(Entreprise);
-    setFormMode('edit');
-    setIsFormOpen(true);
-  };
-
-  const handleDelete = (id: string) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette candidature ?')) {
-      setEntreprises(Entreprises.filter(Entreprise => Entreprise.id !== id));
+  // Fonction pour voir les détails 
+  const handleView = async (id: string) => {
+    try {
+      const fullData = await getJobApplicationById(id);
+      setSelectedEntreprise(fullData);
+      setFormMode("view");
+      setIsFormOpen(true);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des données:', error);
+      alert('Impossible de récupérer les données. Veuillez réessayer.');
     }
   };
 
-  const handleAddNew = () => {
-    setSelectedEntreprise(undefined);
-    setFormMode('create');
-    setIsFormOpen(true);
-  };
-
-  const handleSave = (EntrepriseData: Partial<Entreprise>) => {
-    if (formMode === 'create') {
-      const newEntreprise: Entreprise = {
-        ...EntrepriseData as Entreprise,
-        id: Date.now().toString(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      setEntreprises([...Entreprises, newEntreprise]);
-    } else if (formMode === 'edit' && selectedEntreprise) {
-      setEntreprises(Entreprises.map(Entreprise => 
-        Entreprise.id === selectedEntreprise.id 
-          ? { ...EntrepriseData as Entreprise, id: selectedEntreprise.id, updatedAt: new Date().toISOString() }
-          : Entreprise
-      ));
+  // Fonction pour éditer 
+  const handleEdit = async (id: string) => {
+    try {
+      const fullData = await getJobApplicationById(id);
+      setSelectedEntreprise(fullData);
+      setFormMode("edit");
+      setIsFormOpen(true);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des données:', error);
+      alert('Impossible de récupérer les données. Veuillez réessayer.');
     }
-    setIsFormOpen(false);
-    setSelectedEntreprise(undefined);
-  };
-
-  const handleCloseForm = () => {
-    setIsFormOpen(false);
-    setSelectedEntreprise(undefined);
-  };
-
-  const handleBulkDelete = () => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer toutes les candidatures filtrées ?')) {
-      const idsToDelete = new Set(filteredAndSortedEntreprises.map(Entreprise => Entreprise.id));
-      setEntreprises(Entreprises.filter(Entreprise => !idsToDelete.has(Entreprise.id)));
-    }
-  };
-
-  const handleResetFilters = () => {
-    setSearchTerm('');
-    setStatusFilter('');
-    setTypeFilter('');
-    setSortBy('dateCandidature');
-    setPosteFilter('');
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -134,13 +73,8 @@ function App() {
           </div>
         </div>
       </header>
-
-      {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats */}
         <EntrepriseStats Entreprises={Entreprises} />
-
-        {/* Search and Filters */}
         <SearchAndFilters
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
@@ -155,19 +89,43 @@ function App() {
           posteFilter={posteFilter}
           onPosteFilterChange={setPosteFilter}
         />
-
-        {/* Entreprises Grid */}
-        {filteredAndSortedEntreprises.length === 0 ? (
+        {loading ? (
           <div className="text-center py-12">
             <GraduationCap className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {Entreprises.length === 0 ? 'Aucune Candidature enregistré' : 'Aucune Candidature trouvé'}
+              Chargement des candidatures...
             </h3>
             <p className="text-gray-500 mb-4">
-              {Entreprises.length === 0 
-                ? 'Commencez par ajouter votre première candidature'
-                : 'Essayez de modifier vos critères de recherche'
-              }
+              Veuillez patienter pendant le chargement des données.
+            </p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <Trash2 className="w-12 h-12 text-red-500 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              Erreur de chargement
+            </h3>
+            <p className="text-gray-500 mb-4">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+            >
+              <GraduationCap className="w-4 h-4 mr-2" />
+              Réessayer
+            </button>
+          </div>
+        ) : filteredAndSortedEntreprises.length === 0 ? (
+          <div className="text-center py-12">
+            <GraduationCap className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              {Entreprises.length === 0
+                ? "Aucune Candidature enregistré"
+                : "Aucune Candidature trouvé"}
+            </h3>
+            <p className="text-gray-500 mb-4">
+              {Entreprises.length === 0
+                ? "Commencez par ajouter votre première candidature"
+                : "Essayez de modifier vos critères de recherche"}
             </p>
             {Entreprises.length === 0 && (
               <button
@@ -181,24 +139,22 @@ function App() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredAndSortedEntreprises.map(Entreprise => (
+            {filteredAndSortedEntreprises.map((jobApplication) => (
               <EntrepriseCard
-                key={Entreprise.id}
-                Entreprise={Entreprise}
-                onView={handleView}
-                onEdit={handleEdit}
+                key={jobApplication.id}
+                jobApplication={jobApplication}
+                onView={() => handleView(jobApplication.id)}
+                onEdit={() => handleEdit(jobApplication.id)}
                 onDelete={handleDelete}
               />
             ))}
           </div>
         )}
       </main>
-
-      {/* Entreprise Form */}
       <EntrepriseForm
         isOpen={isFormOpen}
         onClose={handleCloseForm}
-        Entreprise={selectedEntreprise}
+        request={selectedEntreprise}
         onSave={handleSave}
         mode={formMode}
       />

@@ -1,24 +1,37 @@
-export interface Entreprise {
-  id: string;
-  entreprise: {
-    nom: string;
-    secteur: 'Cybersécurité & Cloud' | 'Fintech' | 'IA & Data' | 'Développement logiciel' | 'Robotique & IOT' | 'Développement Web' | 'Autre';
-    adresse: string;
+export interface JobApplicationRequest {
+  id?: string;
+  jobCompanyInfo: {
+    id?: string;
+    name: string;
+    sector: 'CYBERSECURITE_CLOUD' | 'FINTECH' | 'AI_DATA' | 'DEVELOPPEMENT_LOGICIEL' | 'ROBOTIQUE_IOT' | 'DEVELOPPEMENT_WEB' | '' ;
+    adress?: string | null;
     email: string;
-    contact: number;
-    typeEntreprise: 'PME' | 'Grande entreprise' | 'Start-up' | 'Association' | 'Administration' | 'Autre';
+    phone?: number | null;
+    companyType: 'ADMINISTRATION' | 'ASSOCIATION' | 'GRANDE_ENTREPRISE' | 'PME' | 'STARTUP' | '';
   };
-  Poste: {
-    poste: string;
-    statut: 'En Attente' | 'Entretien' | 'Accepté' | 'Refusé';
-    typePoste: 'Stage' | 'Alternance' | 'Emploi' | 'Autre' ;
-    description: string;
-    dateCandidature: string;
+  jobPositionInfo: {
+    id?: string;
+    jobTitle: string;
+    status: 'ATTENTE' | 'ACCEPTE' | 'REFUSE' | 'ENTRETIEN' | '';
+    positionType: 'STAGE' | 'ALTERNANCE' | 'EMPLOI' | '';
+    applicationDate: string; 
+    description?: string | null;
   };
-  notes: string;
-  createdAt: string;
-  updatedAt: string;
+  notes?: string | null;
 }
+
+export interface JobApplicationResponse {
+  id: string;
+  companyName: string;
+  sector: 'CYBERSECURITE_CLOUD' | 'FINTECH' | 'AI_DATA' | 'DEVELOPPEMENT_LOGICIEL' | 'ROBOTIQUE_IOT' | 'DEVELOPPEMENT_WEB' | '';
+  companyAdress: string;
+  companyType: 'ADMINISTRATION' | 'ASSOCIATION' | 'GRANDE_ENTREPRISE' | 'PME' | 'STARTUP' | '';
+  jobTitle: string;
+  status: 'ATTENTE' | 'ACCEPTE' | 'REFUSE' | 'ENTRETIEN' | '';
+  positionType: 'STAGE' | 'ALTERNANCE' | 'EMPLOI' | '';
+  applicationDate: string;
+};
+
 
 export const ENTREPRISE_TYPES = [
   'PME',

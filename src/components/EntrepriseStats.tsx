@@ -1,18 +1,18 @@
 import React from 'react';
 import { TrendingUp, Send, UserCheck, CheckCircle } from 'lucide-react';
-import { Entreprise } from '../types/Entreprise';
+import { JobApplicationResponse } from '../types/Entreprise';
 
 interface EntrepriseStatsProps {
-  Entreprises: Entreprise[];
+  Entreprises: JobApplicationResponse[];
 }
 
 const EntrepriseStats: React.FC<EntrepriseStatsProps> = ({ Entreprises }) => {
   const stats = {
     total: Entreprises.length,
-    enCours: Entreprises.filter(s => s.Poste.statut === 'En Attente').length,
-    entretien: Entreprises.filter(s => s.Poste.statut === 'Entretien').length,
-    accepte: Entreprises.filter(s => s.Poste.statut === 'Accepté').length,
-    entreprises: new Set(Entreprises.map(s => s.entreprise.nom)).size
+    enCours: Entreprises.filter(s => s.status === 'ATTENTE').length,
+    entretien: Entreprises.filter(s => s.status === 'ENTRETIEN').length,
+    accepte: Entreprises.filter(s => s.status === 'ACCEPTE').length,
+    entreprises: new Set(Entreprises.map(s => s.companyName)).size
   };
 
   return (
