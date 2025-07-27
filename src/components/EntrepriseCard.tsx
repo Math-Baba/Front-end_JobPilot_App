@@ -4,7 +4,6 @@ import {
   Edit,
   Trash2,
   Building,
-  User,
   Calendar,
   MapPin,
   Factory,
@@ -90,9 +89,9 @@ const EntrepriseCard: React.FC<EntrepriseCardProps> = ({
         </div>
       </div>
       <div className="flex justify-between items-center mt-4">
-        <button className="px-3 py-1 bg-[#000814] text-white text-sm rounded-lg hover:bg-[#1b263b]">
+        <a href={`mailto:${jobApplication.email}`} className="px-3 py-2 bg-[#000814] text-white text-sm rounded-lg hover:bg-[#1b263b]">
           Rappel
-        </button>
+        </a>
         <div className="flex space-x-2">
           <button onClick={onView} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200" title="Voir les détails">
             <Eye className="w-4 h-4" />

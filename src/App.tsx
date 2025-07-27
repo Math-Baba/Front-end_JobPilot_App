@@ -3,8 +3,10 @@ import EntrepriseCard from "./components/EntrepriseCard";
 import EntrepriseForm from "./components/EntrepriseForm";
 import SearchAndFilters from "./components/SearchAndFilters";
 import EntrepriseStats from "./components/EntrepriseStats";
+import Pagination from "./components/Pagination";
 import { useAppLogic } from "./App.component";
 import { getJobApplicationById } from "./service/jobApplication.service";
+import { useState } from "react";
 
 function App() {
   const {
@@ -15,27 +17,35 @@ function App() {
     setIsFormOpen,
     formMode,
     setFormMode,
-    searchTerm,
-    setSearchTerm,
-    statusFilter,
-    setStatusFilter,
-    typeFilter,
-    setTypeFilter,
-    posteFilter,
-    setPosteFilter,
-    sortBy,
-    setSortBy,
     loading,
     error,
-    filteredAndSortedEntreprises,
     handleDelete,
+    handleSearch,
     handleAddNew,
     handleSave,
     handleCloseForm,
     handleResetFilters,
   } = useAppLogic();
 
-  // Fonction pour voir les détails 
+  // État local pour les résultats filtrés par le backend
+  const [filteredResults, setFilteredResults] = useState<any[]>([]);
+  // Flag pour savoir si on utilise les filtres avancés
+  const [isUsingAdvancedFilters, setIsUsingAdvancedFilters] = useState(false);
+
+  // Fonction pour mettre à jour les résultats depuis les filtres avancés
+  const handleUpdateResults = (results: any[]) => {
+    setFilteredResults(results);
+    setIsUsingAdvancedFilters(true);
+  };
+
+  // Fonction pour réinitialiser les filtres
+  const handleReset = () => {
+    setFilteredResults([]);
+    setIsUsingAdvancedFilters(false);
+    handleResetFilters();
+  };
+
+  // Fonction pour voir les détails
   const handleView = async (id: string) => {
     try {
       const fullData = await getJobApplicationById(id);
@@ -43,12 +53,12 @@ function App() {
       setFormMode("view");
       setIsFormOpen(true);
     } catch (error) {
-      console.error('Erreur lors de la récupération des données:', error);
-      alert('Impossible de récupérer les données. Veuillez réessayer.');
+      console.error("Erreur lors de la récupération des données:", error);
+      alert("Impossible de récupérer les données. Veuillez réessayer.");
     }
   };
 
-  // Fonction pour éditer 
+  // Fonction pour éditer
   const handleEdit = async (id: string) => {
     try {
       const fullData = await getJobApplicationById(id);
@@ -56,9 +66,30 @@ function App() {
       setFormMode("edit");
       setIsFormOpen(true);
     } catch (error) {
-      console.error('Erreur lors de la récupération des données:', error);
-      alert('Impossible de récupérer les données. Veuillez réessayer.');
+      console.error("Erreur lors de la récupération des données:", error);
+      alert("Impossible de récupérer les données. Veuillez réessayer.");
     }
+  };
+
+  // Utiliser les résultats filtrés si on utilise les filtres avancés, sinon utiliser les résultats par défaut
+  const displayedEntreprises = isUsingAdvancedFilters
+    ? filteredResults
+    : Entreprises;
+
+  
+  // Ajout des états pour la pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(6);
+
+  // Calcul des données paginées
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = displayedEntreprises.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(displayedEntreprises.length / itemsPerPage);
+
+  // Fonction pour changer de page
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
   return (
@@ -76,18 +107,10 @@ function App() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <EntrepriseStats Entreprises={Entreprises} />
         <SearchAndFilters
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          statusFilter={statusFilter}
-          onStatusFilterChange={setStatusFilter}
-          typeFilter={typeFilter}
-          onTypeFilterChange={setTypeFilter}
-          sortBy={sortBy}
-          onSortChange={setSortBy}
+          onSearch={handleSearch}
           onAddNew={handleAddNew}
-          onReset={handleResetFilters}
-          posteFilter={posteFilter}
-          onPosteFilterChange={setPosteFilter}
+          onUpdateResults={handleUpdateResults}
+          onReset={handleReset}
         />
         {loading ? (
           <div className="text-center py-12">
@@ -114,7 +137,7 @@ function App() {
               Réessayer
             </button>
           </div>
-        ) : filteredAndSortedEntreprises.length === 0 ? (
+        ) : displayedEntreprises.length === 0 ? (
           <div className="text-center py-12">
             <GraduationCap className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -138,17 +161,33 @@ function App() {
             )}
           </div>
         ) : (
+          <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredAndSortedEntreprises.map((jobApplication) => (
-              <EntrepriseCard
-                key={jobApplication.id}
-                jobApplication={jobApplication}
-                onView={() => handleView(jobApplication.id)}
-                onEdit={() => handleEdit(jobApplication.id)}
-                onDelete={handleDelete}
-              />
-            ))}
+            {currentItems
+              .slice()
+              .sort(
+                (a, b) =>
+                  new Date(b.applicationDate).getTime() -
+                  new Date(a.applicationDate).getTime()
+              )
+              .map((jobApplication) => (
+                <EntrepriseCard
+                  key={jobApplication.id}
+                  jobApplication={jobApplication}
+                  onView={() => handleView(jobApplication.id)}
+                  onEdit={() => handleEdit(jobApplication.id)}
+                  onDelete={() => handleDelete(jobApplication.id)}
+                />
+              ))}
           </div>
+          
+          {/* Utilisation du composant Pagination */}
+          <Pagination 
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </>
         )}
       </main>
       <EntrepriseForm

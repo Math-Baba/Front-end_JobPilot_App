@@ -1,98 +1,122 @@
-import React,{ useState } from 'react';
-import { Search, Filter, Plus, ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState } from "react";
+import { Search, Filter, Plus, ChevronDown, ChevronUp } from "lucide-react";
 import FilterPanel from "./FilterPanel";
+import { filterJobApplications } from "../service/jobApplication.service";
+import {
+  FilterJobApplications,
+  ENTREPRISE_TYPES,
+  ENTREPRISE_SECTEURS,
+  POSTE_STATUTS,
+  POSTE_TYPES,
+} from "../types/Entreprise";
 
 interface SearchAndFiltersProps {
-  searchTerm: string;
-  onSearchChange: (value: string) => void;
-  statusFilter: string;
-  onStatusFilterChange: (value: string) => void;
-  typeFilter: string;
-  onTypeFilterChange: (value: string) => void;
-  sortBy: string;
-  onSortChange: (value: string) => void;
+  onSearch: (value: string) => void;
   onAddNew: () => void;
+  onUpdateResults: (results: any[]) => void;
   onReset: () => void;
-  posteFilter: string;
-  onPosteFilterChange: (value: string) => void;
 }
 
 const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
-  searchTerm,
-  onSearchChange,
-  statusFilter,
-  onStatusFilterChange,
-  typeFilter,
-  onTypeFilterChange,
-  sortBy,
-  onSortChange,
+  onSearch,
   onAddNew,
+  onUpdateResults,
   onReset,
-  posteFilter,
-  onPosteFilterChange,
 }) => {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const [filters, setFilters] = useState<FilterJobApplications>({
+    positionType: [],
+    status: [],
+    sector: [],
+    companyType: [],
+  });
 
-  // États locaux pour les filtres avancés
-  const [filterName, setFilterName] = useState("");
-  const [filtertypePoste, setFiltertypePoste] = useState<string[]>([]);
-  const [filterStatus, setFilterStatus] = useState<string[]>([]);
-  const [filterStartDates, setFilterStartDates] = useState<string[]>([]);
-  const [filterSortBy, setFilterSortBy] = useState<string>("dateCandidature");
-  const [filterTypeEntreprise, setFilterTypeEntreprise] = useState<string[]>([]);
-  const [filterSecteurs, setFilterSecteurs] = useState<string[]>([]);
+  const handleApplyAdvancedFilters = async () => {
+    try {
+      // Conversion simple avec les Records
+      const apiFilters = {
+        positionType: filters.positionType
+          ?.map((key) => POSTE_TYPES[key])
+          .filter(Boolean),
+        status: filters.status
+          ?.map((key) => POSTE_STATUTS[key])
+          .filter(Boolean),
+        sector: filters.sector
+          ?.map((key) => ENTREPRISE_SECTEURS[key])
+          .filter(Boolean),
+        companyType: filters.companyType
+          ?.map((key) => ENTREPRISE_TYPES[key])
+          .filter(Boolean),
+      };
 
-  // Appliquer les filtres avancés aux filtres principaux
-  const handleApplyAdvancedFilters = () => {
-    onSearchChange(filterName);
-    onTypeFilterChange(filtertypePoste[0] || "");
-    onStatusFilterChange(filterStatus[0] || "");
-    onSortChange("typeEntreprise"); // le tri est fixé
-    onTypeFilterChange(filterTypeEntreprise[0] || "");
-    // Ici, il faudra adapter la logique pour appliquer filterSecteurs dans App
+      const results = await filterJobApplications(apiFilters);
+      onUpdateResults(results);
+      setShowAdvancedFilters(false);
+    } catch (error) {
+      console.error("Erreur lors du filtrage:", error);
+    }
+  };
+
+  const handleResetAll = () => {
+    // Réinitialiser les filtres locaux
+    setFilters({
+      positionType: [],
+      status: [],
+      sector: [],
+      companyType: [],
+    });
+    
+    // Réinitialiser la valeur de recherche
+    setSearchValue("");
+
+    // Utiliser onReset() du parent pour récupérer toutes les données
+    onReset();
+
+    // Masquer les filtres avancés après reset
     setShowAdvancedFilters(false);
   };
 
-  // Réinitialiser tous les filtres
-  const handleResetAll = () => {
-    setFilterName("");
-    setFiltertypePoste([]);
-    setFilterStatus([]);
-    setFilterStartDates([]);
-    setFilterTypeEntreprise([]);
-    setFilterSecteurs([]);
-    onReset();
+  const handleSearchChange = (value: string) => {
+    setSearchValue(value);
+    onSearch(value);
   };
 
   return (
     <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 mb-6">
-      {/* Recherche */}
+      {/* Recherche simple */}
       <div className="mb-4">
         <div className="relative mb-2">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
           <input
             type="text"
-            placeholder="Rechercher par nom, entreprise, poste..."
-            value={searchTerm}
-            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Rechercher par nom..."
+            value={searchValue}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
       </div>
 
-      {/* Actions principales (boutons + filtre avancé) */}
+      {/* Actions */}
       <div className="flex flex-col md:flex-row md:items-center gap-2 justify-between mb-4">
         <button
           onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-          className="flex items-center text-blue-600 hover:underline text-sm"
+          className="flex items-center text-[#000814] hover:underline text-sm"
         >
           <Filter className="w-4 h-4 mr-1" />
-          {showAdvancedFilters ? "Masquer les filtres avancés" : "Afficher les filtres avancés"}
-          {showAdvancedFilters ? <ChevronUp className="ml-1 w-4 h-4" /> : <ChevronDown className="ml-1 w-4 h-4" />}
+          {showAdvancedFilters
+            ? "Masquer les filtres avancés"
+            : "Afficher les filtres avancés"}
+          {showAdvancedFilters ? (
+            <ChevronUp className="ml-1 w-4 h-4" />
+          ) : (
+            <ChevronDown className="ml-1 w-4 h-4" />
+          )}
         </button>
         <div className="flex gap-2">
           <button
-            onClick={onReset}
+            onClick={handleResetAll}
             className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
           >
             Réinitialiser
@@ -107,22 +131,12 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
         </div>
       </div>
 
-      {/* Affichage du panneau de filtres avancés */}
+      {/* Filtres avancés */}
       {showAdvancedFilters && (
         <div className="mt-2">
           <FilterPanel
-            filterName={filterName}
-            setFilterName={setFilterName}
-            filtertypePoste={filtertypePoste}
-            setFiltertypePoste={setFiltertypePoste}
-            filterStatus={filterStatus}
-            setFilterStatus={setFilterStatus}
-            filterStartDates={filterStartDates}
-            setFilterStartDates={setFilterStartDates}
-            filterTypeEntreprise={filterTypeEntreprise}
-            setFilterTypeEntreprise={setFilterTypeEntreprise}
-            filterSecteurs={filterSecteurs}
-            setFilterSecteurs={setFilterSecteurs}
+            filters={filters}
+            setFilters={setFilters}
             onReset={handleResetAll}
             onApply={handleApplyAdvancedFilters}
           />

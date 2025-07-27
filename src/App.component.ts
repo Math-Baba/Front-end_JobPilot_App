@@ -20,11 +20,6 @@ export function useAppLogic() {
   const [formMode, setFormMode] = useState<"create" | "edit" | "view">(
     "create"
   );
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [typeFilter, setTypeFilter] = useState("");
-  const [posteFilter, setPosteFilter] = useState("");
-  const [sortBy, setSortBy] = useState("applicationDate");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,49 +35,6 @@ export function useAppLogic() {
         setLoading(false);
       });
   }, []);
-
-  const filteredAndSortedEntreprises = useMemo(() => {
-    const filtered = Entreprises.filter((item) => {
-      const search = searchTerm.toLowerCase();
-      const matchesSearch =
-        searchTerm === "" ||
-        [item.companyName, item.sector, item.companyType].some((val) =>
-          val.toLowerCase().includes(search)
-        );
-      const matchesStatus = statusFilter === "" || item.status === statusFilter;
-      const matchesType = typeFilter === "" || item.positionType === typeFilter;
-      const matchesPoste =
-        posteFilter === "" ||
-        item.jobTitle.toLowerCase().includes(posteFilter.toLowerCase());
-      return matchesSearch && matchesStatus && matchesType && matchesPoste;
-    });
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case "applicationDate":
-          return (
-            new Date(b.applicationDate).getTime() -
-            new Date(a.applicationDate).getTime()
-          );
-        case "jobTitle":
-          return a.jobTitle
-            .toLowerCase()
-            .localeCompare(b.jobTitle.toLowerCase());
-        case "positionType":
-          return a.positionType
-            .toLowerCase()
-            .localeCompare(b.positionType.toLowerCase());
-        case "companyType":
-          return a.companyType
-            .toLowerCase()
-            .localeCompare(b.companyType.toLowerCase());
-        case "status":
-          return a.status.toLowerCase().localeCompare(b.status.toLowerCase());
-        default:
-          return 0;
-      }
-    });
-    return filtered;
-  }, [Entreprises, searchTerm, statusFilter, typeFilter, posteFilter, sortBy]);
 
   const handleView = (jobApplication: JobApplicationRequest) => {
     setSelectedEntreprise(jobApplication);
@@ -109,6 +61,22 @@ export function useAppLogic() {
         console.error("Erreur lors de la suppression :", error);
         alert("Impossible de supprimer la candidature. Veuillez réessayer.");
       }
+    }
+  };
+
+  const handleSearch = async (term: string) => {
+    try {
+      if (term.trim() === "") {
+        // Si recherche vide, on recharge tout
+        const all = await getAllJobApplications();
+        setEntreprises(all);
+      } else {
+        const results = await search(term);
+        setEntreprises(results);
+      }
+    } catch (error) {
+      console.error("Erreur lors de la recherche :", error);
+      setError("La recherche a échoué. Veuillez réessayer.");
     }
   };
 
@@ -151,9 +119,7 @@ export function useAppLogic() {
       }
 
       if (formMode === "create") {
-        const created = await create(jobApplicationData);
-        setEntreprises([...Entreprises, created]);
-        window.location.reload();
+        await create(jobApplicationData);
       } else if (formMode === "edit" && selectedEntreprise) {
         const updated = await update({
           ...jobApplicationData,
@@ -166,8 +132,8 @@ export function useAppLogic() {
               : jobApplication
           )
         );
-        window.location.reload();
       }
+      window.location.reload();
 
       setIsFormOpen(false);
       setSelectedEntreprise(undefined);
@@ -181,12 +147,17 @@ export function useAppLogic() {
     setSelectedEntreprise(undefined);
   };
 
-  const handleResetFilters = () => {
-    setSearchTerm("");
-    setStatusFilter("");
-    setTypeFilter("");
-    setSortBy("applicationDate");
-    setPosteFilter("");
+  const handleResetFilters = async () => {
+    try {
+      setLoading(true);
+      const all = await getAllJobApplications();
+      setEntreprises(all);
+      setLoading(false);
+    } catch (error) {
+      console.error("Erreur lors du reset:", error);
+      setError("Erreur lors du rechargement des données");
+      setLoading(false);
+    }
   };
 
   return {
@@ -198,25 +169,15 @@ export function useAppLogic() {
     setIsFormOpen,
     formMode,
     setFormMode,
-    searchTerm,
-    setSearchTerm,
-    statusFilter,
-    setStatusFilter,
-    typeFilter,
-    setTypeFilter,
-    posteFilter,
-    setPosteFilter,
-    sortBy,
-    setSortBy,
-    loading,
-    error,
-    filteredAndSortedEntreprises,
     handleView,
     handleEdit,
     handleDelete,
+    handleSearch,
     handleAddNew,
     handleSave,
     handleCloseForm,
     handleResetFilters,
+    loading,
+    error
   };
 }

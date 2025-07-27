@@ -1,163 +1,117 @@
 import React from "react";
-import { ENTREPRISE_TYPES, ENTREPRISE_SECTEURS, POSTE_STATUTS, POSTE_TYPES } from "../types/Entreprise";
-
-const dateApplication = ["2024-01-01", "2024-06-01"];
+import {
+  ENTREPRISE_TYPES,
+  ENTREPRISE_SECTEURS,
+  POSTE_STATUTS,
+  POSTE_TYPES,
+} from "../types/Entreprise";
+import { FilterJobApplications } from "../types/Entreprise";
 
 interface FilterPanelProps {
-  filterName: string;
-  setFilterName: (value: string) => void;
-  filtertypePoste: string[];
-  setFiltertypePoste: (value: string[]) => void;
-  filterStatus: string[];
-  setFilterStatus: (value: string[]) => void;
-  filterStartDates: string[];
-  setFilterStartDates: (value: string[]) => void;
-  filterTypeEntreprise: string[];
-  setFilterTypeEntreprise: (value: string[]) => void;
-  filterSecteurs: string[];
-  setFilterSecteurs: (value: string[]) => void;
+  filters: FilterJobApplications;
+  setFilters: React.Dispatch<React.SetStateAction<FilterJobApplications>>;
   onReset: () => void;
-  onApply: () => void;
+  onApply: () => Promise<void>;
 }
 
 const FilterPanel: React.FC<FilterPanelProps> = ({
-  filterName,
-  setFilterName,
-  filtertypePoste,
-  setFiltertypePoste,
-  filterStatus,
-  setFilterStatus,
-  filterStartDates,
-  setFilterStartDates,
-  filterTypeEntreprise,
-  setFilterTypeEntreprise,
-  filterSecteurs,
-  setFilterSecteurs,
-  onReset,
+  filters,
+  setFilters,
   onApply,
 }) => {
-  const toggleCheckbox = (
-    value: string,
-    setter: (value: string[]) => void,
-    state: string[]
-  ) => {
-    if (state.includes(value)) {
-      setter(state.filter((v) => v !== value));
-    } else {
-      setter([...state, value]);
-    }
+  const handleCheckboxChange = (filterType: keyof FilterJobApplications, value: string) => {
+    setFilters(prev => {
+      const currentValues = prev[filterType] || [];
+      const isChecked = currentValues.includes(value);
+      
+      return {
+        ...prev,
+        [filterType]: isChecked
+          ? currentValues.filter(item => item !== value)
+          : [...currentValues, value]
+      };
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    await onApply();
   };
 
   return (
-    <div className="p-4 border rounded-lg w-full max-w-md bg-white shadow">
-      <h2 className="text-lg font-semibold mb-4">Filtres</h2>
+    <form
+      onSubmit={handleSubmit}
+      className="p-4 border rounded-lg bg-white shadow space-y-4 w-full max-w-md"
+    >
+      <h2 className="text-lg font-semibold">Filtres</h2>
 
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">Nom du poste</label>
-        <input
-          type="text"
-          className="w-full border px-3 py-2 rounded"
-          placeholder="Rechercher un nom"
-          value={filterName}
-          onChange={(e) => setFilterName(e.target.value)}
-        />
-      </div>
-
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">Type</label>
-        {POSTE_TYPES.map((type) => (
+      <fieldset>
+        <legend className="text-sm font-medium mb-1">Type de poste</legend>
+        {Object.keys(POSTE_TYPES).map((type) => (
           <label key={type} className="flex items-center space-x-2 mb-1">
-            <input
-              type="checkbox"
-              checked={filtertypePoste.includes(type)}
-              onChange={() =>
-                toggleCheckbox(type, setFiltertypePoste, filtertypePoste)
-              }
+            <input 
+              type="checkbox" 
+              checked={filters.positionType?.includes(type) || false}
+              onChange={() => handleCheckboxChange('positionType', type)}
             />
             <span>{type}</span>
           </label>
         ))}
-      </div>
+      </fieldset>
 
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">Date de candidature</label>
-        {dateApplication.map((date) => (
-          <label key={date} className="flex items-center space-x-2 mb-1">
-            <input
-              type="checkbox"
-              checked={filterStartDates.includes(date)}
-              onChange={() =>
-                toggleCheckbox(date, setFilterStartDates, filterStartDates)
-              }
-            />
-            <span>{date}</span>
-          </label>
-        ))}
-      </div>
+      
 
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">Statut</label>
-        {POSTE_STATUTS.map((status) => (
+      <fieldset>
+        <legend className="text-sm font-medium mb-1">Statut</legend>
+        {Object.keys(POSTE_STATUTS).map((status) => (
           <label key={status} className="flex items-center space-x-2 mb-1">
-            <input
-              type="checkbox"
-              checked={filterStatus.includes(status)}
-              onChange={() =>
-                toggleCheckbox(status, setFilterStatus, filterStatus)
-              }
+            <input 
+              type="checkbox" 
+              checked={filters.status?.includes(status) || false}
+              onChange={() => handleCheckboxChange('status', status)}
             />
             <span>{status}</span>
           </label>
         ))}
-      </div>
+      </fieldset>
 
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">Secteur</label>
-        {ENTREPRISE_SECTEURS.map((secteur) => (
+      <fieldset>
+        <legend className="text-sm font-medium mb-1">Secteur</legend>
+        {Object.keys(ENTREPRISE_SECTEURS).map((secteur) => (
           <label key={secteur} className="flex items-center space-x-2 mb-1">
-            <input
-              type="checkbox"
-              checked={filterSecteurs.includes(secteur)}
-              onChange={() =>
-                toggleCheckbox(secteur, setFilterSecteurs, filterSecteurs)
-              }
+            <input 
+              type="checkbox" 
+              checked={filters.sector?.includes(secteur) || false}
+              onChange={() => handleCheckboxChange('sector', secteur)}
             />
             <span>{secteur}</span>
           </label>
         ))}
-      </div>
+      </fieldset>
 
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">Type d'entreprise</label>
-        {ENTREPRISE_TYPES.map((type) => (
+      <fieldset>
+        <legend className="text-sm font-medium mb-1">Type d'entreprise</legend>
+        {Object.keys(ENTREPRISE_TYPES).map((type) => (
           <label key={type} className="flex items-center space-x-2 mb-1">
-            <input
-              type="checkbox"
-              checked={filterTypeEntreprise.includes(type)}
-              onChange={() =>
-                toggleCheckbox(type, setFilterTypeEntreprise, filterTypeEntreprise)
-              }
+            <input 
+              type="checkbox" 
+              checked={filters.companyType?.includes(type) || false}
+              onChange={() => handleCheckboxChange('companyType', type)}
             />
             <span>{type}</span>
           </label>
         ))}
-      </div>
+      </fieldset>
 
-      <div className="flex justify-between mt-4">
+      <div className="flex justify-between">
         <button
-          onClick={onReset}
-          className="px-4 py-2 text-sm bg-gray-200 rounded hover:bg-gray-300"
+          type="submit"
+          className="px-4 py-2 text-sm bg-[#000814] text-white rounded hover:bg-[#1b263b]"
         >
-          Réinitialiser
-        </button>
-        <button
-          onClick={onApply}
-          className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          Filtrer
+          Appliquer
         </button>
       </div>
-    </div>
+    </form>
   );
 };
 
