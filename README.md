@@ -39,6 +39,9 @@ npm run dev
 * Système d'état centralisé via useAppLogic
 * Communication avec une API backend via Axios
 
+## Notes
+Dans le fichier data.service.ts, changer le port 5555 en fonction du port par défaut utiliser par le backend
+
 ## Backend (Java Spring Boot)
 [Backend JobPilot](https://github.com/Math-Baba/Back-end_JobPilot_App.git)
 
