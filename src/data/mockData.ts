@@ -1,5 +1,5 @@
 import { Entreprise } from '../types/Entreprise';
-
+// Données fictives servant au template d'origine
 export const mockEntreprises: Entreprise[] = [
   {
     id: '1',

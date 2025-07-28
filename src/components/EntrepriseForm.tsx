@@ -3,11 +3,11 @@ import { X, Save, Building, Calendar, FileText } from "lucide-react";
 import { JobApplicationRequest } from "../types/Entreprise";
 
 interface EntrepriseFormProps {
-  isOpen: boolean;
-  onClose: () => void;
-  request?: JobApplicationRequest;
-  onSave: (request: Partial<JobApplicationRequest>) => void;
-  mode: "create" | "edit" | "view";
+  isOpen: boolean; // Contrôle si le formulaire est visible ou non
+  onClose: () => void; // Fonction appelée pour fermer le formulaire
+  request?: JobApplicationRequest; // Données à modifier ou afficher (optionnel)
+  onSave: (request: Partial<JobApplicationRequest>) => void; // Fonction appelée pour sauvegarder (create/update)
+  mode: "create" | "edit" | "view"; // Mode d’utilisation du formulaire (créer, modifier, visualiser)
 }
 
 const EntrepriseForm: React.FC<EntrepriseFormProps> = ({
@@ -17,6 +17,7 @@ const EntrepriseForm: React.FC<EntrepriseFormProps> = ({
   onSave,
   mode,
 }) => {
+  // État local pour gérer les données du formulaire (initialisé vide ou avec request)
   const [formData, setFormData] = useState<Partial<JobApplicationRequest>>({
     jobCompanyInfo: {
       name: "",
@@ -36,10 +37,12 @@ const EntrepriseForm: React.FC<EntrepriseFormProps> = ({
     notes: "",
   });
 
+  // À chaque fois que la prop request change, on met à jour formData avec ses valeurs
   useEffect(() => {
     if (request) {
       setFormData(request);
     } else {
+      // Sinon on remet un formulaire vide avec valeurs par défaut
       setFormData({
         jobCompanyInfo: {
           name: "",
@@ -61,25 +64,33 @@ const EntrepriseForm: React.FC<EntrepriseFormProps> = ({
     }
   }, [request]);
 
+  // Fonction appelée quand on valide le formulaire (submit)
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSave(formData);
+    e.preventDefault(); // Empêche le rechargement de la page
+    onSave(formData); // Envoie les données au parent via onSave
   };
 
+  // Fonction pour modifier un champ "imbriqué" dans formData
+  // Recoit un tableau de chaînes de caractères qui indique le chemin vers la propriété à modifier
+  // Et la nouvelle valeur à attribuer à ce champ
   const updateNestedField = (path: string[], value: any) => {
     setFormData((prev) => {
       const newData = { ...prev };
       let current: any = newData;
+      // Parcourt le chemin jusqu'à l’avant dernier niveau
       for (let i = 0; i < path.length - 1; i++) {
         current = current[path[i]];
       }
+      // Modifie la valeur du champ ciblé
       current[path[path.length - 1]] = value;
       return newData;
     });
   };
 
+  // En mode view, on désactive les champs du formulaire (Read only)
   const isReadOnly = mode === "view";
 
+  // Si le formulaire n'est pas ouvert, on ne l'affiche pas
   if (!isOpen) return null;
 
   return (
@@ -113,7 +124,7 @@ const EntrepriseForm: React.FC<EntrepriseFormProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nom de l'entreprise <span className="text-red">*</span>
+                  Nom de l'entreprise <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -128,7 +139,7 @@ const EntrepriseForm: React.FC<EntrepriseFormProps> = ({
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Secteur <span className="text-red">*</span>
+                  Secteur <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={formData.jobCompanyInfo?.sector}
@@ -154,7 +165,7 @@ const EntrepriseForm: React.FC<EntrepriseFormProps> = ({
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Adresse 
+                  Localisation 
                 </label>
                 <input
                   type="text"
@@ -168,7 +179,7 @@ const EntrepriseForm: React.FC<EntrepriseFormProps> = ({
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email <span className="text-red">*</span>
+                  Email <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="email"
@@ -197,7 +208,21 @@ const EntrepriseForm: React.FC<EntrepriseFormProps> = ({
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Type d'entreprise <span className="text-red">*</span>
+                  Site web 
+                </label>
+                <input
+                  type="text"
+                  value={formData.jobCompanyInfo?.website || ""}
+                  onChange={(e) =>
+                    updateNestedField(["jobCompanyInfo", "website"], e.target.value)
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  disabled={isReadOnly}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Type d'entreprise <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={formData.jobCompanyInfo?.companyType}
@@ -231,7 +256,7 @@ const EntrepriseForm: React.FC<EntrepriseFormProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Poste <span className="text-red">*</span>
+                  Poste <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -246,7 +271,7 @@ const EntrepriseForm: React.FC<EntrepriseFormProps> = ({
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Statut <span className="text-red">*</span>
+                  Statut <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={formData.jobPositionInfo?.status}
@@ -265,7 +290,7 @@ const EntrepriseForm: React.FC<EntrepriseFormProps> = ({
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Type de Poste <span className="text-red">*</span>
+                  Type de Poste <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={formData.jobPositionInfo?.positionType || "Entreprise"}
@@ -283,7 +308,7 @@ const EntrepriseForm: React.FC<EntrepriseFormProps> = ({
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date d'envoie de la candidature <span className="text-red">*</span>
+                  Date d'envoie de la candidature <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="date"

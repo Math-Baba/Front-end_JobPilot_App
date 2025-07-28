@@ -7,6 +7,7 @@ interface PaginationProps {
 }
 
 export default function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
+  // Si on a qu’une page ou aucune, on n'affiche rien 
   if (totalPages <= 1) return null;
 
   return (

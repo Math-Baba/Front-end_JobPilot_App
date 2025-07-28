@@ -12,6 +12,7 @@ export interface JobApplicationRequest {
     adress?: string | null;
     email: string;
     phone?: number | null;
+    website?: string | null;
     companyType: CompanyType;
   };
   jobPositionInfo: {

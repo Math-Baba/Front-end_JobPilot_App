@@ -11,18 +11,31 @@ import {
   search,
 } from "./service/jobApplication.service";
 
+// Hook personnalisé contenant toute la logique de gestion des candidatures
 export function useAppLogic() {
+  // Liste des candidatures
   const [Entreprises, setEntreprises] = useState<JobApplicationResponse[]>([]);
+
+  // Candidature sélectionnée pour la modification ou l’affichage
   const [selectedEntreprise, setSelectedEntreprise] = useState<
     JobApplicationRequest | undefined
   >();
+
+  // État d’ouverture du formulaire 
   const [isFormOpen, setIsFormOpen] = useState(false);
+
+  // Mode du formulaire
   const [formMode, setFormMode] = useState<"create" | "edit" | "view">(
     "create"
   );
+
+  // Indicateur de chargement
   const [loading, setLoading] = useState(true);
+
+  // Indicateur d'erreur
   const [error, setError] = useState<string | null>(null);
 
+  // Chargement initial des données à l’ouverture de la page
   useEffect(() => {
     setLoading(true);
     getAllJobApplications()
@@ -36,24 +49,28 @@ export function useAppLogic() {
       });
   }, []);
 
+  // Afficher une fiche candidature en mode lecture seule
   const handleView = (jobApplication: JobApplicationRequest) => {
     setSelectedEntreprise(jobApplication);
     setFormMode("view");
     setIsFormOpen(true);
   };
 
+  // Modifier une candidature existante
   const handleEdit = (jobApplication: JobApplicationRequest) => {
     setSelectedEntreprise(jobApplication);
     setFormMode("edit");
     setIsFormOpen(true);
   };
 
+  // Supprimer une candidature avec confirmation
   const handleDelete = async (id: string) => {
     if (
       window.confirm("Êtes-vous sûr de vouloir supprimer cette candidature ?")
     ) {
       try {
         await deleteJob(Number(id));
+        // On met à jour la liste localement
         setEntreprises(
           Entreprises.filter((jobApplication) => jobApplication.id !== id)
         );
@@ -64,6 +81,7 @@ export function useAppLogic() {
     }
   };
 
+  // Recherche de candidatures par mot-clé
   const handleSearch = async (term: string) => {
     try {
       if (term.trim() === "") {
@@ -80,12 +98,14 @@ export function useAppLogic() {
     }
   };
 
+  // Ouvrir un formulaire vide pour ajouter une nouvelle candidature
   const handleAddNew = () => {
     setSelectedEntreprise(undefined);
     setFormMode("create");
     setIsFormOpen(true);
   };
 
+  // Vérifie que les données d’une candidature sont valides (tous les champs obligatoires)
   function isValidJobApplication(
     data: Partial<JobApplicationRequest>
   ): data is JobApplicationRequest {
@@ -109,6 +129,7 @@ export function useAppLogic() {
     );
   }
 
+  // Sauvegarde d’une candidature (création ou modification)
   const handleSave = async (
     jobApplicationData: Partial<JobApplicationRequest>
   ) => {
@@ -125,6 +146,7 @@ export function useAppLogic() {
           ...jobApplicationData,
           id: selectedEntreprise.id,
         });
+        // Mise à jour dans la liste locale
         setEntreprises(
           Entreprises.map((jobApplication) =>
             jobApplication.id === selectedEntreprise.id
@@ -142,11 +164,13 @@ export function useAppLogic() {
     }
   };
 
+  // Fermer le formulaire sans enregistrer
   const handleCloseForm = () => {
     setIsFormOpen(false);
     setSelectedEntreprise(undefined);
   };
 
+  // Réinitialise les filtres de recherche en rechargeant toutes les données
   const handleResetFilters = async () => {
     try {
       setLoading(true);

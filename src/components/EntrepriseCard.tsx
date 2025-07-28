@@ -11,6 +11,7 @@ import {
 import { JobApplicationResponse } from "../types/Entreprise";
 import { statusLabels, sectorLabels, companyTypeLabels, positionTypeLabels } from "../types/Labels";
 
+// Définition des propriétés attendues par ce composant
 interface EntrepriseCardProps {
   jobApplication: JobApplicationResponse;
   onView: () => void;
@@ -24,6 +25,7 @@ const EntrepriseCard: React.FC<EntrepriseCardProps> = ({
   onEdit,
   onDelete,
 }) => {
+  // Fonction pour définir les couleurs du statut
   const getStatusColor = (statut: string) => {
     switch (statut) {
       case "Entretien":
@@ -39,6 +41,7 @@ const EntrepriseCard: React.FC<EntrepriseCardProps> = ({
     }
   };
 
+  // Fonction pour définir les couleurs du type de poste
   const getTypeColor = (typePoste: string) => {
     switch (typePoste) {
       case "Stage":

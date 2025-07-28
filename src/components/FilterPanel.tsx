@@ -9,7 +9,7 @@ import { FilterJobApplications } from "../types/Entreprise";
 
 interface FilterPanelProps {
   filters: FilterJobApplications;
-  setFilters: React.Dispatch<React.SetStateAction<FilterJobApplications>>;
+  setFilters: React.Dispatch<React.SetStateAction<FilterJobApplications>>; // Fonction pour modifier les filtres
   onReset: () => void;
   onApply: () => Promise<void>;
 }
@@ -19,13 +19,17 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   setFilters,
   onApply,
 }) => {
+  // Fonction appelée quand on clique sur une case à cocher pour ajouter ou retirer un filtre
   const handleCheckboxChange = (filterType: keyof FilterJobApplications, value: string) => {
     setFilters(prev => {
+      // Récupère la valeur actuelle du filtre
       const currentValues = prev[filterType] || [];
+      // Vérifie si la valeur est coché
       const isChecked = currentValues.includes(value);
       
       return {
         ...prev,
+        // Si la valeur est déjà cochée, on la retire, sinon on l'ajoute
         [filterType]: isChecked
           ? currentValues.filter(item => item !== value)
           : [...currentValues, value]
@@ -35,7 +39,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await onApply();
+    await onApply(); // Appelle la fonction d'application des filtres passée en props
   };
 
   return (
