@@ -42,8 +42,7 @@ npm run dev
 ## Notes
 Dans le fichier data.service.ts, changer le port 5555 en fonction du port par défaut utiliser par le backend
 
-## Backend (Java Spring Boot)
-[Backend JobPilot](https://github.com/Math-Baba/Back-end_JobPilot_App.git)
+Lien vers le backend: [Backend JobPilot](https://github.com/Math-Baba/Back-end_JobPilot_App.git)
 
 # Auteur
 **Math-Baba** - [GitHub](https://github.com/Math-Baba)
