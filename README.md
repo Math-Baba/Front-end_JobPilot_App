@@ -45,7 +45,7 @@ npm run dev
 ⚠️ Le **workflow n8n n’est pas fourni** dans ce dépôt. Il s’agit d’un modèle expérimental, non finalisé, et il ne sera pas publié.⚠️
 
 Lien vers le backend: [Backend JobPilot](https://github.com/Math-Baba/Back-end_JobPilot_App.git)
-Liens vers la démonstration Youtube du chatbot: [JobPilot AI: Démonstration](https://youtu.be/_piNxSs8n4U)
+Liens vers la démonstration Youtube du chatbot: [JobPilot AI: Démonstration](https://youtu.be/hbEBSmX3e1c)
 
 # Auteur
 **Math-Baba** - [GitHub](https://github.com/Math-Baba)
