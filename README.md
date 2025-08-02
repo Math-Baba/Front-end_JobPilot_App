@@ -41,10 +41,10 @@ npm run dev
 * Intégration d'un chatbot IA avec n8n
 
 ## Notes
-⚠️Dans le fichier data.service.ts, changer le port 5555 en fonction du port par défaut utiliser par le backend⚠️
+⚠️Dans le fichier data.service.ts, changer le port 5555 en fonction du port par défaut utiliser par le backend⚠️\n
 ⚠️ Le **workflow n8n n’est pas fourni** dans ce dépôt. Il s’agit d’un modèle expérimental, non finalisé, et il ne sera pas publié.⚠️
 
-Lien vers le backend: [Backend JobPilot](https://github.com/Math-Baba/Back-end_JobPilot_App.git)
+Lien vers le backend: [Backend JobPilot](https://github.com/Math-Baba/Back-end_JobPilot_App.git)\n
 Liens vers la démonstration Youtube du chatbot: [JobPilot AI: Démonstration](https://youtu.be/hbEBSmX3e1c)
 
 # Auteur
