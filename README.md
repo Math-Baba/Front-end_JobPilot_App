@@ -38,11 +38,14 @@ npm run dev
 * Système de Pagination 
 * Système d'état centralisé via useAppLogic
 * Communication avec une API backend via Axios
+* Intégration d'un chatbot IA avec n8n
 
 ## Notes
-Dans le fichier data.service.ts, changer le port 5555 en fonction du port par défaut utiliser par le backend
+⚠️Dans le fichier data.service.ts, changer le port 5555 en fonction du port par défaut utiliser par le backend⚠️
+⚠️ Le **workflow n8n n’est pas fourni** dans ce dépôt. Il s’agit d’un modèle expérimental, non finalisé, et il ne sera pas publié.⚠️
 
 Lien vers le backend: [Backend JobPilot](https://github.com/Math-Baba/Back-end_JobPilot_App.git)
+Liens vers la démonstration Youtube du chatbot: [JobPilot AI: Démonstration](https://youtu.be/_piNxSs8n4U)
 
 # Auteur
 **Math-Baba** - [GitHub](https://github.com/Math-Baba)
